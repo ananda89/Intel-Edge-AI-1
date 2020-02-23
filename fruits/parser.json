@@ -1,0 +1,79 @@
+{
+  "text": "mango",
+  "parsed": [
+    {
+      "food": {
+        "foodId": "food_an1dqoib8xj3tyb3pr7c0abi4rbw",
+        "label": "Mangos",
+        "nutrients": {
+          "ENERC_KCAL": 60.0,
+          "PROCNT": 0.82,
+          "FAT": 0.38,
+          "CHOCDF": 14.98,
+          "FIBTG": 1.6
+        },
+        "category": "Generic foods",
+        "categoryLabel": "food"
+      }
+    }
+  ],
+  "hints": [
+    {
+      "food": {
+        "foodId": "food_an1dqoib8xj3tyb3pr7c0abi4rbw",
+        "label": "Mangos",
+        "nutrients": {
+          "ENERC_KCAL": 60.0,
+          "PROCNT": 0.82,
+          "FAT": 0.38,
+          "CHOCDF": 14.98,
+          "FIBTG": 1.6
+        },
+        "category": "Generic foods",
+        "categoryLabel": "food"
+      },
+      "measures": [
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_unit",
+          "label": "Whole"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_fruit",
+          "label": "Fruit"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_serving",
+          "label": "Serving"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_slice",
+          "label": "Slice"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_gram",
+          "label": "Gram"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_ounce",
+          "label": "Ounce"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_pound",
+          "label": "Pound"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_kilogram",
+          "label": "Kilogram"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_tablespoon",
+          "label": "Tablespoon"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_cup",
+          "label": "Cup"
+        }
+      ]
+    }
+  ]
+}
