@@ -1,6 +1,6 @@
 """
     Calling the Food API for the nutritional information of the fruit/veg
-    classified from the OpenVINO Inference Engine.
+    classified from the Intel's OpenVINO Inference Engine.
     It makes API calls to two different databases: Food and Nutritional
     database. Output of the former is required to make calls to the later.
     The outputs of the two API calls are stored in two JSON files.

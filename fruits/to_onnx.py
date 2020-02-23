@@ -1,3 +1,10 @@
+"""
+    Python module for converting the trained PyTorch model to ONNX.
+    Intel OpenVINO library cannot directly process the state dict
+    of PyTorch's trained models. It has to be converted to ONNX prior
+    to feeding it in the OpenVINO's Model Optimizer.
+"""
+# Importing packages
 import torch
 import torch.nn as nn
 import torch.onnx as onnx
