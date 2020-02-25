@@ -62,7 +62,7 @@ class Network:
         '''
         Makes an asynchronous inference request, given an input image.
         '''
-        ### TODO: Start asynchronous inference
+        ### Start asynchronous inference
         self.exec_network.start_async(request_id=0, 
             inputs={self.input_blob: image})
         return

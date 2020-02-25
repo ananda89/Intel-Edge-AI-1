@@ -28,6 +28,9 @@ model.fc = classifier
 # Loading the model's state dictionary
 model.load_state_dict(torch.load('fruits.pt', map_location=device))  # converting the model from GPU to CPU
 
+# Set the model to inference mode
+model.eval()
+
 # dummy variable
 x = torch.randn(1, 3, 100, 100)         # size of the input image
 
