@@ -32,7 +32,7 @@ model.load_state_dict(torch.load('fruits.pt', map_location=device))  # convertin
 model.eval()
 
 # dummy variable
-x = torch.randn(1, 3, 100, 100)         # size of the input image
+x = torch.randn(1, 3, 224, 224)         # size of the input image
 
 # exporting to ONNX
 onnx.export(model, x, "fruits.onnx", verbose=True, export_params=True)
