@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms, datasets
 from PIL import Image
+import json
 
 # Using CPU
 device = torch.device('cpu')
@@ -32,7 +33,9 @@ model.fc = classifier
 model.load_state_dict(torch.load('fruits.pt', map_location=device))  # converting the model from GPU to CPU
 
 # get the classes and write tham in a file
-data_dir = 'project-intel-edge-ai/fruits/fruits-360_dataset/fruits-360/'
+# data_dir = 'project-intel-edge-ai/fruits/fruits-360_dataset/fruits-360/'
+data_dir = 'fruits-360_dataset/fruits-360/'
+
 train_dir = os.path.join(data_dir, 'Training')
 test_dir = os.path.join(data_dir, 'Test')
 
@@ -45,6 +48,10 @@ def find_classes(dir):
 
 
 class_names, idx_to_class = find_classes(test_dir)
+
+# output the dictionary for the class names
+with open("idx_to_class.json", "w") as f:
+    json.dump(idx_to_class, f)
 
 # Modifying the images according to ImageNet images
 # Defining Image loader
