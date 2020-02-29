@@ -2794,7 +2794,7 @@
 			<mean_values value="()"/>
 			<move_to_preprocess value="False"/>
 			<output_dir value="DIR"/>
-			<reverse_input_channels value="True"/>
+			<reverse_input_channels value="False"/>
 			<scale_values value="()"/>
 			<silent value="False"/>
 			<steps value="False"/>

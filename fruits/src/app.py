@@ -1,6 +1,6 @@
 import argparse
-import cv2
 import numpy as np
+from PIL import Image       # Using PIL instead of OpenCV
 
 from handle_model_output import handle_output, preprocessing
 from inference import Network
@@ -75,22 +75,20 @@ def perform_inference(args):
     plugin.load_model(args.m, args.d, args.c)
     net_input_shape = plugin.get_input_shape()
 
-    # print(net_input_shape)
     # Read the input image    
-    image = cv2.imread(args.i)
-    # print('net_input_shape is ' + str(net_input_shape))
+    image = Image.open(args.i)
 
     # Preprocess the input image
-    preprocessed_image = preprocessing(image, net_input_shape[2], net_input_shape[3])
-    # print(preprocessed_image.shape)
+    preprocessed_image = preprocessing(image)
+
     # Perform synchronous inference on the image
     plugin.sync_inference(preprocessed_image)
 
     # Obtain the output of the inference request
     output = plugin.extract_output()
-    # print(output)
+
     processed_output = handle_output(output)
-    print("processed output", processed_output)
+    # print("processed output", processed_output)
 
     print(MODEL_OUTPUT[processed_output])
     
@@ -98,7 +96,7 @@ def perform_inference(args):
     output_image = create_output_image(image, processed_output)
 
     # Save down the resulting image
-    cv2.imwrite("outputs/output.png", output_image)
+    output_image.save("outputs/output.jpg")
 
 
 def main():
