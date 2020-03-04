@@ -10,6 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 1) PyTorch & TorchVision
 2) OpenVINO Toolkit
+3) Python Imaging Library (PIL)
 
 ### Dataset and API
 The dataset available in this [link](https://www.kaggle.com/moltean/fruits) on kaggle was used to build the model to classify fruits and vegetables. On the basis of the classification, its nutritional information will be retrieved in real time by calling a nutritional database [API](https://www.edamam.com/). <br />
@@ -19,9 +20,13 @@ For inference, this model makes use of Intel OpenVINO library which will be used
 ### Running the tests
 The test can be run from command line.<br /> <br />
 **Example**: <br />
-`python app.py -m fruits-classifier-model.xml -i input.jpg` <br /><br />
-* **-m** refers to the path of the model that will be making the classification of the fruit/vegetable <br />
-* **-i**  refers to the path of the input file i.e., the fruit/vegetable to check for nutritional information
+`python app.py -m fruits-classifier-model.xml -i input.jpg -id <app_id> -k <app_key>` <br /><br />
+* **`-m`** refers to the path of the model that will be making the classification of the fruit/vegetable <br />
+* **`-i`**  refers to the path of the input file i.e., the fruit/vegetable to check for nutritional information
+* **`-id`** App Id required for calling the API
+* **`-k`** App Key required for calling the API for authentication purposes
+
+Note: A call to the API will be only made if `app_id` and `app_key` are provided else a stubbed output will be shown.
 
 ### Output
 The nutritional information displayed on top of the image
