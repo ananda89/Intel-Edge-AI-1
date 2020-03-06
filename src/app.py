@@ -1,8 +1,9 @@
 import argparse
 import numpy as np
+import cv2
 from PIL import Image       # Using PIL instead of OpenCV
-
 from handle_model_output import handle_output, preprocessing
+from get_nutritional_data import get_nutritional_data
 from inference import Network
 
 MODEL_OUTPUT = ['Apple Braeburn', 'Apple Crimson Snow', 'Apple Golden 1', 
@@ -42,6 +43,8 @@ def get_args():
     d_desc = "Device, if not CPU (GPU, FPGA, MYRIAD)"
     i_desc = "The location of the input file"
     m_desc = "The location of the model XML file"
+    k_desc = "API Key value"
+    id_desc = "API Id value"
 
     # -- Add required and optional groups
     parser._action_groups.pop()
@@ -50,19 +53,31 @@ def get_args():
 
     # -- Create the arguments
     required.add_argument("-i", help=i_desc, required=True)
-    optional.add_argument("-m", help=m_desc, default="fruits.xml")
+    optional.add_argument("-m", help=m_desc, default="../models/fruits.xml")
     optional.add_argument("-c", help=c_desc, default=None)
     optional.add_argument("-d", help=d_desc, default="CPU")
+    optional.add_argument("-id", help=id_desc, default=None)
+    optional.add_argument("-k", help=k_desc, default=None)
+    
     args = parser.parse_args()
 
     return args
 
 
-def create_output_image(image, output):
+def create_output_image(nutritional_info):
     '''
     creates an output image showing the result of inference.
     '''    
-    return image
+    img = cv2.imread('../images/output-background.jpg')
+    
+    y0, dy = 100, 50
+    for i, line in enumerate(nutritional_info.split('\n')):
+    	# Only picking the top 20 nutrients
+        if i < 20: 
+            y = y0 + i*dy          
+            cv2.putText(img, line, (900, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+
+    return img
 
 def perform_inference(args):
     '''
@@ -74,10 +89,10 @@ def perform_inference(args):
     # Load the network model into the IE
     plugin.load_model(args.m, args.d, args.c)
     net_input_shape = plugin.get_input_shape()
-
-    # Read the input image    
+    
+    # Read the input image
     image = Image.open(args.i)
-
+    
     # Preprocess the input image
     preprocessed_image = preprocessing(image)
 
@@ -87,17 +102,15 @@ def perform_inference(args):
     # Obtain the output of the inference request
     output = plugin.extract_output()
 
-    processed_output = handle_output(output)
-    # print("processed output", processed_output)
+    processed_output = handle_output(output)    
+    processed_output = MODEL_OUTPUT[processed_output].split()[0]
+    ret_string = get_nutritional_data(processed_output, args.id, args.k)
 
-    print(MODEL_OUTPUT[processed_output])
-    
     # Create an output image based on network
-    output_image = create_output_image(image, processed_output)
+    output_image = create_output_image(ret_string)
 
     # Save down the resulting image
-    output_image.save("outputs/output.jpg")
-
+    cv2.imwrite("../outputs/output.png", output_image)
 
 def main():
     args = get_args()

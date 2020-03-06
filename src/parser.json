@@ -1,0 +1,107 @@
+{
+  "text": "Banana",
+  "parsed": [
+    {
+      "food": {
+        "foodId": "food_bjsfxtcaidvmhaa3afrbna43q3hu",
+        "label": "Bananas",
+        "nutrients": {
+          "ENERC_KCAL": 89.0,
+          "PROCNT": 1.09,
+          "FAT": 0.33,
+          "CHOCDF": 22.84,
+          "FIBTG": 2.6
+        },
+        "category": "Generic foods",
+        "categoryLabel": "food"
+      }
+    }
+  ],
+  "hints": [
+    {
+      "food": {
+        "foodId": "food_bjsfxtcaidvmhaa3afrbna43q3hu",
+        "label": "Bananas",
+        "nutrients": {
+          "ENERC_KCAL": 89.0,
+          "PROCNT": 1.09,
+          "FAT": 0.33,
+          "CHOCDF": 22.84,
+          "FIBTG": 2.6
+        },
+        "category": "Generic foods",
+        "categoryLabel": "food"
+      },
+      "measures": [
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_unit",
+          "label": "Whole",
+          "qualified": [
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_large",
+                "label": "large"
+              }
+            ],
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_medium",
+                "label": "medium"
+              }
+            ],
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_small",
+                "label": "small"
+              }
+            ],
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_extra_large",
+                "label": "extra large"
+              }
+            ]
+          ]
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_serving",
+          "label": "Serving"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_gram",
+          "label": "Gram"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_ounce",
+          "label": "Ounce"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_pound",
+          "label": "Pound"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_kilogram",
+          "label": "Kilogram"
+        },
+        {
+          "uri": "http://www.edamam.com/ontologies/edamam.owl#Measure_cup",
+          "label": "Cup",
+          "qualified": [
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_mashed",
+                "label": "mashed"
+              }
+            ],
+            [
+              {
+                "uri": "http://www.edamam.com/ontologies/edamam.owl#Qualifier_sliced",
+                "label": "sliced"
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

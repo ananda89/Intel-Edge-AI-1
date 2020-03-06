@@ -1,4 +1,3 @@
-# import cv2
 import torch
 import numpy as np
 from PIL import Image
@@ -17,7 +16,6 @@ def handle_output(output):
     Handles the output of the asl recognition model.
     Returns one integer = prob: the argmax of softmax output.
     '''
-    # print(output)
     return np.argmax(output.flatten()) 
 
 def preprocessing(img):
