@@ -29,7 +29,7 @@ The test can be run from the root directory in command line.<br /> <br />
 Note: A call to the API will be only made if `app_id` and `app_key` are provided else a stubbed output will be shown.
 
 ### Output
-The nutritional information displayed on top of the image.
+The nutritional information displayed on top of the image:
 
 ![Figure 1](outputs/output.png)
 
