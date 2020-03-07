@@ -18,18 +18,20 @@ The dataset available in this [link](https://www.kaggle.com/moltean/fruits) on k
 For inference, this model makes use of Intel OpenVINO library which will be used to deploy it at the edge.
 
 ### Running the tests
-The test can be run from command line.<br /> <br />
+The test can be run from the root directory in command line.<br /> <br />
 **Example**: <br />
-`python app.py -m fruits-classifier-model.xml -i input.jpg -id <app_id> -k <app_key>` <br /><br />
-* **`-m`** refers to the path of the model that will be making the classification of the fruit/vegetable <br />
-* **`-i`**  refers to the path of the input file i.e., the fruit/vegetable to check for nutritional information
-* **`-id`** App Id required for calling the API
-* **`-k`** App Key required for calling the API for authentication purposes
+`python src/app.py -m models/fruits.xml -i inputs/banana.jpg -id <app_id> -k <app_key>` <br /><br />
+* **`-m`** refers to the path of the model that will be making the classification of the fruit/vegetable -__optional__ (_else default value will be used)_ <br /> 
+* **`-i`**  refers to the path of the input file i.e., the fruit/vegetable to check for nutritional information - __required__
+* **`-id`** App Id required for calling the API - __optional__
+* **`-k`** App Key required for calling the API for authentication purposes - __optional__
 
 Note: A call to the API will be only made if `app_id` and `app_key` are provided else a stubbed output will be shown.
 
 ### Output
-The nutritional information displayed on top of the image
+The nutritional information displayed on top of the image.
+
+![Figure 1](outputs/output.png)
 
 ### Scope for extension/Future Work
 + Identify multiple food items present in an input image and display the combined nutritional information
