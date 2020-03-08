@@ -9,7 +9,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 1) PyTorch & TorchVision
-2) OpenVINO Toolkit
+2) Intel OpenVINO Toolkit
 3) Python Imaging Library (PIL)
 
 ### Dataset and API
