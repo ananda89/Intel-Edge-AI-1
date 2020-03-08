@@ -26,7 +26,11 @@ The test can be run from the root directory in command line.<br /> <br />
 * **`-id`** App Id required for calling the API - __optional__
 * **`-k`** App Key required for calling the API for authentication purposes - __optional__
 
-Note: A call to the API will be only made if `app_id` and `app_key` are provided else a stubbed output will be shown.
+#### Other optional arguments
+* **`-c`** file location of CPU extension, if using CPU (_not required_ for OpenVINO Version>=2020.x)
+* **`-d`** intel hardware used if not CPU (GPU, FPGA, MYRIAD)
+
+__Note:__ A call to the API will be only made if `app_id` and `app_key` are provided else a stubbed output will be shown.
 
 ### Output
 The nutritional information displayed on top of the image:
