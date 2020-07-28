@@ -86,9 +86,9 @@ def build_argparser():
         "-pt",
         "--prob_threshold",
         type=float,
-        default=0.5,
+        default=0.6,
         help="Probability threshold for detections filtering"
-        "(0.5 by default)",
+        "(0.6 by default)",
     )
 
     return parser
@@ -199,7 +199,11 @@ def infer_on_stream(args):
         if key_pressed == 27:
             print("Exit key is pressed...exiting!")
             break
-        inputfeeder.close()
+
+    # closing the video stream
+    inputfeeder.close()
+
+    print(f"Total frames: {frame_number}")
 
 
 def main():
