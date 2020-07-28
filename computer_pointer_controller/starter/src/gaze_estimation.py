@@ -118,11 +118,13 @@ class GazeEstimationModel:
         """
         # model description:
         # https://docs.openvinotoolkit.org/latest/omz_models_intel_gaze_estimation_adas_0002_description_gaze_estimation_adas_0002.html
-        x = outputs[0][0]
-        y = outputs[0][1]
-        z = outputs[0][2]
+        print(outputs)
+        output = outputs[self.output_name][0]
+        x = output[0]
+        y = output[1]
+        z = output[2]
 
-        x /= cv2.norm(outputs)
-        y /= cv2.norm(outputs)
+        x /= cv2.norm(output)
+        y /= cv2.norm(output)
 
         return x, y

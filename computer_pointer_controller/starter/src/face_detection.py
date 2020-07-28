@@ -69,11 +69,13 @@ class FaceDetectionModel:
         # check to see if a person is actually present in the frame
         if len(coordinates) == 0:
             print("No face is detected, moving on to the next frame...")
-            return 0
+            return 0, 0
+        face_coordinates = coordinates[0]
         face_image = image[
-            coordinates[1] : coordinates[3], coordinates[0] : coordinates[2]
+            face_coordinates[1] : face_coordinates[3],
+            face_coordinates[0] : face_coordinates[2],
         ]
-        return coordinates, face_image
+        return face_coordinates, face_image
 
     def check_model(self):
         # checking for unsupported layers
@@ -120,13 +122,14 @@ class FaceDetectionModel:
         coords = []
         width = image.shape[1]
         height = image.shape[0]
-        for box in outputs[0][0]:
+        output = outputs[self.output_name][0][0]
+        for box in output:
             conf = box[2]
             if conf >= self.threshold:
                 xmin = int(box[3] * width)
                 ymin = int(box[4] * height)
                 xmax = int(box[5] * width)
                 ymax = int(box[6] * height)
-                coords.append((xmin, ymin, xmax, ymax))
+                coords.append([xmin, ymin, xmax, ymax])
 
         return coords

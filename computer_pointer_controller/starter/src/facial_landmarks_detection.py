@@ -131,10 +131,11 @@ class FacialLandmarksModel:
         # model outputs a blob with shape [1,10] containing the x,y cooridnates of
         # two eyes, nose and two lip corners. All the coordinates are normalized
         # so we also need to scale them appropriately. We need the coordinates of the eyes.
-        left_eye_x_coord = int(outputs[0] * image.shape[1])
-        left_eye_y_coord = int(outputs[1] * image.shape[0])
-        right_eye_x_coord = int(outputs[2] * image.shape[1])
-        right_eye_y_coord = int(outputs[3] * image.shape[0])
+        output = outputs[self.output_name][0]
+        left_eye_x_coord = int(output[0] * image.shape[1])
+        left_eye_y_coord = int(output[1] * image.shape[0])
+        right_eye_x_coord = int(output[2] * image.shape[1])
+        right_eye_y_coord = int(output[3] * image.shape[0])
 
         return [
             left_eye_x_coord,

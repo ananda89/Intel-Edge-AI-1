@@ -116,7 +116,7 @@ def infer_on_stream(args):
     }
     # checking if all the model file paths are valid
     for model_name in model_paths.keys():
-        if not os.path.isfile(model_paths[model_name]):
+        if not os.path.isfile(model_paths[model_name] + ".xml"):
             print(
                 f"Path to the xml file for the model: {model_name} doesn't exist..."
             )
@@ -156,9 +156,56 @@ def infer_on_stream(args):
         model_obj.load_model()
         model_obj.check_model()
 
-    for flag, batch in inputfeeder.next_batch():
-        
+    frame_number = 0
+    for flag, frame in inputfeeder.next_batch():
+        if not flag:
+            break
+        # keep track of frames passed
+        frame_number += 1
+        key_pressed = cv2.waitKey(60)
+
+        if frame_number % 5 == 0:
+            cv2.imshow("video", cv2.resize(frame, (500, 500)))
+        # detect the face in the frame
+        face_coordinates, face_image = fd_model.predict(frame.copy())
+        if face_coordinates == 0:
+            print("No face is detected")
+            continue
+        print(face_image.shape)
+        print("Coordinates of the person's face in the frame")
+        print(face_coordinates)
+
+        # detect the head pose in the face image
+        head_pose_angles = hpe_model.predict(face_image)
+
+        print("Person's head pose angles in the frame")
+        print(head_pose_angles)
+
+        # get the left and right eye images
+        left_eye_image, right_eye_image = fld_model.predict(face_image)
+        print("Left and right eye images")
+        print(left_eye_image.shape)
+        print(right_eye_image.shape)
+
+        # get the coordinates for mouse controller
+        mouse_coordinates = ge_model.predict(
+            left_eye_image, right_eye_image, head_pose_angles
+        )
+        print("Coordinates of the mouse pointer")
+        print(mouse_coordinates)
+        if frame_number % 5 == 0:
+            mc.move(mouse_coordinates[0], mouse_coordinates[1])
+
+        if key_pressed == 27:
+            print("Exit key is pressed...exiting!")
+            break
+        inputfeeder.close()
 
 
 def main():
-    pass
+    args = build_argparser().parse_args()
+    infer_on_stream(args)
+
+
+if __name__ == "__main__":
+    main()
