@@ -68,10 +68,12 @@ class FaceDetectionModel:
 
         # check to see if a person is actually present in the frame
         if len(coordinates) == 0:
-            print("No face is detected, moving on to next frame")
+            print("No face is detected, moving on to the next frame...")
             return 0
-
-        return coordinates
+        face_image = image[
+            coordinates[1] : coordinates[3], coordinates[0] : coordinates[2]
+        ]
+        return coordinates, face_image
 
     def check_model(self):
         # checking for unsupported layers
