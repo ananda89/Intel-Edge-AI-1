@@ -7,6 +7,10 @@
 
 ## Demo
 *TODO:* Explain how to run a basic demo of your model.
+```
+python src/main.py --input_path bin/demo.mp4 --face_detection $MODEL_DIR/face-detection-adas-0001/FP32/face-detection-adas-0001 --facial_landmarks $MODEL_DIR/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009 --head_pose $MODEL_DIR/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001 --gaze $MODEL_DIR/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002
+```
+where `MODEL_DIR`: path to the directory which contains all the models
 
 ## Documentation
 *TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
