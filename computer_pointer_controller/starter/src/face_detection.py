@@ -6,6 +6,7 @@ import numpy as np
 import time
 from openvino.inference_engine import IECore, IENetwork
 import os
+import logging as log
 import cv2
 
 
@@ -26,6 +27,7 @@ class FaceDetectionModel:
         self.model_weights = model_name + ".bin"
         self.model_structure = model_name + ".xml"
         self.threshold = threshold
+        self.logger = log.getLogger()
 
         try:
             self.core = IECore()
@@ -61,7 +63,12 @@ class FaceDetectionModel:
         TODO: You will need to complete this method.
         This method is meant for running predictions on the input image.
         """
+        preprocessing_start_time = time.time()
         preprocessed_image = self.preprocess_input(image)
+        preprocessing_total_time = time.time() - preprocessing_start_time
+        self.logger.error(
+            f"Time taken to preprocess the image for face detection is {(preprocessing_total_time * 1000):.3f} ms."
+        )
         input_dict = {self.input_name: preprocessed_image}
         output = self.net.infer(input_dict)
         coordinates = self.preprocess_output(output, image)

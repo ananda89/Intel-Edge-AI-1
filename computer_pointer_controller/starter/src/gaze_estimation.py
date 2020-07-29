@@ -5,6 +5,7 @@ This has been provided just to give you an idea of how to structure your model c
 import numpy as np
 import time
 from openvino.inference_engine import IECore, IENetwork
+import logging as log
 import os
 import cv2
 
@@ -23,6 +24,7 @@ class GazeEstimationModel:
         self.extensions = extensions
         self.model_weights = model_name + ".bin"
         self.model_structure = model_name + ".xml"
+        self.logger = log.getLogger()
 
         try:
             self.core = IECore()
@@ -58,8 +60,13 @@ class GazeEstimationModel:
         TODO: You will need to complete this method.
         This method is meant for running predictions on the input image.
         """
+        preprocessing_start_time = time.time()
         processed_left_eye_img = self.preprocess_input(left_eye_image)
         processed_right_eye_img = self.preprocess_input(right_eye_image)
+        preprocessing_total_time = time.time() - preprocessing_start_time
+        self.logger.error(
+            f"Time taken to preprocess the image for gaze estimation is {(preprocessing_total_time * 1000):.3f} ms."
+        )
         input_dict = {
             "left_eye_image": processed_left_eye_img,
             "right_eye_image": processed_right_eye_img,
