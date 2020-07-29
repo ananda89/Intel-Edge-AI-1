@@ -24,20 +24,19 @@ found [here](https://docs.openvinotoolkit.org/latest/index.html)
 The entire directory structure for the project is like this:
 ![project_directory](images/directory_structure.png)
 
-- `images` (_dir_): contains all the project metadata like the images
-- `bin` (_dir_): contains the video file `demo.mp4` on which the application is run
-- `requirements.txt`(_file_): file containing list of the important packages required for running this project
-- `src`(_dir_): contains all the source code for this project
-    - `face_detection.py`: contains `FaceDetection` class which has methods for loading the face detection model, preprocessing the inputs, making inferences and processing the outputs which are the face images of person
-    - `facial_landmarks_detection.py`: this script contains `FacialLandmarksModel` class which uses the output from `face_detection.py` script as input, loads the landmark detection model, makes inferences and finally processes the outputs. It outputs the coordinates and the images of left and right eyes of person in the video frame
-    - `head_pose_estimation.py`: similar to `facial_landmarks_detection.py`, this script also uses the output of face detection model as input and outputs three angles - yaw, pitch and roll which constitutes the head position of the person in video frame
-    - `gaze_estimation.py`: for the purpose of running this script, we had to run all above scripts since it takes person's eyes and head poses as inputs. It then outputs the gaze vector of the person from which the _x_ and _y_ coordinates for mouse pointer can be extracted
-    - `input_feeder.py`: it initializes the videocapture with appropriate input ("CAM", video or image) and then start the pipeline by returning the frames in batches for inferencing
-    - `mouse_controller.py`: contains class for controlling the mouse pointer
-    - `main.py`: the main script which wraps all the above modules together and runs the application
+- [`images`](images/) (_dir_): contains all the project metadata like the images
+- [`bin`](bin) (_dir_): contains the video file `demo.mp4` on which the application is run
+- [`requirements.txt`](requirements.txt)(_file_): file containing list of the important packages required for running this project
+- [`src`](src)(_dir_): contains all the source code for this project
+    - [`face_detection.py`](src/face_detection.py): contains `FaceDetection` class which has methods for loading the face detection model, preprocessing the inputs, making inferences and processing the outputs which are the face images of person
+    - [`facial_landmarks_detection.py`](src/facial_landmarks_detection.py): this script contains `FacialLandmarksModel` class which uses the output from `face_detection.py` script as input, loads the landmark detection model, makes inferences and finally processes the outputs. It outputs the coordinates and the images of left and right eyes of person in the video frame
+    - [`head_pose_estimation.py`](src/head_pose_estimation.py): similar to `facial_landmarks_detection.py`, this script also uses the output of face detection model as input and outputs three angles - yaw, pitch and roll which constitutes the head position of the person in video frame
+    - [`gaze_estimation.py`](src/gaze_estimation.py): for the purpose of running this script, we had to run all above scripts since it takes person's eyes and head poses as inputs. It then outputs the gaze vector of the person from which the _x_ and _y_ coordinates for mouse pointer can be extracted
+    - [`input_feeder.py`](src/input_feeder.py): it initializes the videocapture with appropriate input ("CAM", video or image) and then start the pipeline by returning the frames in batches for inferencing
+    - [`mouse_controller.py`](src/mouse_controller.py): contains class for controlling the mouse pointer
+    - [`main.py`](src/main.py): the main script which wraps all the above modules together and runs the application
 
 ## Demo
-*TODO:* Explain how to run a basic demo of your model.
 ### Downloading the pre-trained models
 - Activate the environment for the project
 - Do `source /opt/intel/openvino_2020.2.117/bin/setupvars.sh -pyver 3.7` 
@@ -69,16 +68,15 @@ python downloader.py --name gaze-estimation-adas-0002 -o <path_to_the_project_di
 ```
 - __Running Application__
 
-To run the application, execute the following command from the root directory
+To run the application, execute the following command from the root directory (for FP32 precision)
 ```
-python src/main.py --input_path bin/demo.mp4 --face_detection $MODEL_DIR/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001 --facial_landmarks $MODEL_DIR/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009 --head_pose $MODEL_DIR/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001 --gaze $MODEL_DIR/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002 --visualize fd fld hpe --device CPU
+python src/main.py --input_path bin/demo.mp4 --face_detection $MODEL_DIR/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001 --facial_landmarks $MODEL_DIR/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009 --head_pose $MODEL_DIR/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001 --gaze $MODEL_DIR/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002 --visualize fd fld hpe --device CPU --output_fname outputs_fp32
 ```
 
 ## Documentation
-*TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
 
 __Description of various command line arguments and shell variables used:__
-- `MODEL_DIR` is the path to the directory which contains all the models
+- `MODEL_DIR`: shell variable for the path to the directory which contains all the models
 - `--input_path`: path to the input file or "CAM" for webcam
 - `--face_detection`: path to face detection model
 - `--facial_landmarks`: path to facial landmarks detection model
@@ -93,6 +91,8 @@ __Description of various command line arguments and shell variables used:__
 - `--device`: flag parses the device name on which inference is being run. Default device is "CPU", other devices like "GPU", "FPGA", "MYRIAD" can also be passed.
 
 (_Note: OpenVINO version 2020.x.xxx does not require any cpu extension files_)
+- `--output_fname`: path to the output file which stores the stats for the model for a given precision, default value: `outputs_fp32`, other values can be `outputs_fp16` and `outputs_int8`
+
 
 ### Project Pipeline
 The overall flow of data through the model looks like:
@@ -100,16 +100,29 @@ The overall flow of data through the model looks like:
 ![pipeline](images/pipeline.png)
 
 ## Benchmarks
-*TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
+
+All the benchmark tests are performed on 5th generation Intel Core(TM) i7-5557U processor with 16GB of RAM with Intel OpenVINO toolkit version 2020.2.117.
+
+Due to the lack of different hardwares, most of the benchmarks are performed on CPU for various precisions. Various benchmarks are considered like:
+- Model load time
+![model_load_time](images/model_load_times.png)
+- Input preprocessing time
+![preprocessing_time](images/preprocess_inputs_times.png)
+- Inference times
+![inference_times](images/inference_times.png)
+- Frames per second
+![fps](images/fps.png)
 
 ## Results
-*TODO:* Discuss the benchmark results and explain why you are getting the results you are getting. For instance, explain why there is difference in inference time for FP32, FP16 and INT8 models.
+Ofcourse, using different hardwares would have provided us more insights like the best hardware for this application. But still a few important things can be inferred from above plots:
+- `INT8` has the worst model load times across all the models used, this might be because CPUs are not optimized to use with this precision
+- `face_detection` model is the biggest bottleneck when it comes to load the model and preprocess the input for the inference. It will effect the overall model performance but for inference only, it will not change much. So, optimization techniques like reducing model size might help. Although from the plot for model load times above, we see that reducing precision from FP32 to FP16 didn't change model load time at all. This means quantization won't be of much use here but we can try techniques like model compression, and weight sharing
+- Inference times and frames per second stayed more or less the same across all the precisions. These metrics are the areas which can be further explored using different hardwares like we saw in project-2 of this nanodegree
 
 ## Stand Out Suggestions
-This is where you can provide information about the stand out suggestions that you have attempted.
-
-### Async Inference
-If you have used Async Inference in your code, benchmark the results and explain its effects on power and performance of your project.
+- The main suggestion which might set this project apart is to use different hardwares but limited time and resources led me to use only CPU
+- Like mentioned before, face detection model is the biggest bottleneck. So different model optimization techniques like reducing the number of weights, etc. can be used which will minimize the time taken to load the model
+- We can find hotspots in the model using VTune amplifier which, although won't be very useful in our case since inference time stayed almost the same for all the precision
 
 ### Edge Cases
-There will be certain situations that will break your inference flow. For instance, lighting changes or multiple people in the frame. Explain some of the edge cases you encountered in your project and how you solved them to make your project more robust.
+- The backbone of this project is to detect the person's face first. The inference might give us unexpected results if it detects more than one face in the frame 

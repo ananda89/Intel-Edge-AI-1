@@ -1,11 +1,11 @@
-Face detection model loaded in 417.998 ms.
-Facial landmarks detection model loaded in 125.004 ms.
-Head pose estimation model loaded in 117.384 ms.
-Gaze estimation model loaded in 142.883 ms.
-Total load time of models is 803.797 ms.
-Average input preprocessing time for face detection: 0.915 ms.
-Average input preprocessing time for facial detection: 0.056 ms.
-Average input preprocessing time for head pose estimation: 0.060 ms.
-Average input preprocessing time for gaze estimation: 0.058 ms.
-Inference finished in 93.18 seconds.
-fps: 6.33 frames/second. 
+Face detection model loaded in 389.335 ms.
+Facial landmarks detection model loaded in 122.486 ms.
+Head pose estimation model loaded in 115.233 ms.
+Gaze estimation model loaded in 135.793 ms.
+Total load time of models is 763.370 ms.
+Average input preprocessing time for face detection: 0.995 ms.
+Average input preprocessing time for facial detection: 0.055 ms.
+Average input preprocessing time for head pose estimation: 0.062 ms.
+Average input preprocessing time for gaze estimation: 0.056 ms.
+Inference finished in 93.4 seconds.
+fps: 6.32 frames/second. 
