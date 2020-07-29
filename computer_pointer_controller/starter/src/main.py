@@ -6,6 +6,7 @@ import os
 import time
 import cv2
 import numpy as np
+import logging as log
 
 from argparse import ArgumentParser
 
@@ -101,17 +102,23 @@ def build_argparser():
         "to diiferent model) can be chained. Possible arguments:"
         "fd: face detection bbox,"
         "fld: bboxs on both images,"
-        "hpe: head pose (displays three angles),"
-        "ge: shows the gaze vectors",
+        "hpe: head pose (displays three angles),",
     )
 
     return parser
 
 
 def infer_on_stream(args):
+    # path to the input file
     input_file = args.input_path
+
+    # visualization flags requested
     display_items = args.visualize
 
+    # instantiate logger object
+    logger = log.getLogger()
+
+    # open the input file
     if input_file == "CAM":
         inputfeeder = InputFeeder("cam")
     elif input_file.endswith(".jpg") or input_file.endswith("bmp"):
@@ -119,7 +126,7 @@ def infer_on_stream(args):
     elif input_file.endswith(".mp4"):
         inputfeeder = InputFeeder("video", input_file)
     else:
-        assert os.path.isfile(input_file), "Input file doesn't exist..."
+        assert os.path.isfile(input_file), "Input file doesn't exist...exiting!"
         sys.exit(1)
 
     # storing all the model paths in a dictionary
@@ -132,47 +139,91 @@ def infer_on_stream(args):
     # checking if all the model file paths are valid
     for model_name in model_paths.keys():
         if not os.path.isfile(model_paths[model_name] + ".xml"):
-            print(
-                f"Path to the xml file for the model: {model_name} doesn't exist..."
+            logger.error(
+                f"Path to the xml file for the model: {model_name} doesn't exist...exiting!"
             )
             sys.exit(1)
 
     # load data from input feeder
     inputfeeder.load_data()
-
+    logger.error("Input feeder is loaded")
     # instantiating mouse controller
     mc = MouseController(precision="medium", speed="fast")
 
-    # instantiating each model
+    ## instantiating and loading each model; storing the load time for each model
+    # start time for face detection model
+    logger.error("Loading the models...")
+    fd_model_start = time.time()
     fd_model = FaceDetectionModel(
         model_paths["face_detection"],
         device=args.device,
         threshold=args.prob_threshold,
         extensions=args.cpu_extension,
     )
+    fd_model.load_model()
+    fd_model_load_time = time.time() - fd_model_start
+    logger.error(
+        f"Face detection model loaded in {(fd_model_load_time*1000):.3f} ms."
+    )
+
+    # start time for facial landmarks model
+    fld_model_start = time.time()
     fld_model = FacialLandmarksModel(
         model_paths["facial_landmarks_detection"],
         device=args.device,
         extensions=args.cpu_extension,
     )
+    fld_model.load_model()
+    fld_model_load_time = time.time() - fld_model_start
+    logger.error(
+        f"Facial landmarks detection model loaded in {(fld_model_load_time*1000):.3f} ms."
+    )
+
+    # start time for head pose estimation model
+    hpe_model_start = time.time()
     hpe_model = HeadPoseEstimationModel(
         model_paths["head_pose_estimation"],
         device=args.device,
         extensions=args.cpu_extension,
     )
+    hpe_model.load_model()
+    hpe_model_load_time = time.time() - hpe_model_start
+    logger.error(
+        f"Head pose estimation model loaded in {(hpe_model_load_time*1000):.3f} ms."
+    )
+
+    # start time for gaze estimation model
+    ge_model_start = time.time()
     ge_model = GazeEstimationModel(
         model_paths["gaze_estimation"],
         device=args.device,
         extensions=args.cpu_extension,
     )
+    ge_model.load_model()
+    ge_model_load_time = time.time() - ge_model_start
+    logger.error(
+        f"Gaze estimation model loaded in {(ge_model_load_time*1000):.3f} ms."
+    )
+    all_models_load_time = time.time() - fd_model_start
+    logger.error(
+        f"Total load time of all the models is {(all_models_load_time*1000):.3f} ms."
+    )
+    logger.error("All models loaded successfully!")
 
     # load the models and check for unsupported layers
+    logger.error("Checking for unsupported layers ...")
     for model_obj in (fd_model, fld_model, hpe_model, ge_model):
-        model_obj.load_model()
+        #     model_obj.load_model()
         model_obj.check_model()
+    logger.error("Done!")
 
     # keep track of the frames
     frame_number = 0
+
+    # start inference time
+    logger.error("Starting the inference on the input video...")
+    start_inference_time = time.time()
+    # iterate through the frames batch
     for flag, frame in inputfeeder.next_batch():
         if not flag:
             break
@@ -183,48 +234,64 @@ def infer_on_stream(args):
         # detect the face in the frame
         face_coordinates, face_image = fd_model.predict(frame.copy())
         if face_coordinates == 0:
-            print("No face is detected")
+            logger.error("No face is detected")
             continue
-        print(face_image.shape)
-        print("Coordinates of the person's face in the frame")
-        print(face_coordinates)
+
+        # print(face_image.shape)
+        # print("Coordinates of the person's face in the frame")
+        # print(face_coordinates)
 
         # detect the head pose in the face image
         head_pose_angles = hpe_model.predict(face_image)
 
-        print("Person's head pose angles in the frame")
-        print(head_pose_angles)
+        # print("Person's head pose angles in the frame")
+        # print(head_pose_angles)
 
         # get the left and right eye images
         left_eye_image, right_eye_image, eye_coordinates = fld_model.predict(
             face_image
         )
-        print("Left and right eye images")
-        print(left_eye_image.shape)
-        print(right_eye_image.shape)
+        # print("Left and right eye images")
+        # print(left_eye_image.shape)
+        # print(right_eye_image.shape)
 
         # get the coordinates for mouse controller
         *mouse_coordinates, gaze_vector = ge_model.predict(
             left_eye_image, right_eye_image, head_pose_angles
         )
-        print("Coordinates of the mouse pointer")
-        print(mouse_coordinates)
+        # print("Coordinates of the mouse pointer")
+        # print(mouse_coordinates)
 
         # check if display stats are requested, if so, show them
-        display_frame = frame.copy()
         if len(display_items) != 0:
+            display_frame = frame.copy()
             if "fd" in display_items:
                 cv2.rectangle(
                     display_frame,
                     (face_coordinates[0], face_coordinates[1]),
                     (face_coordinates[2], face_coordinates[3]),
                     (32, 32, 32),
-                    2,
+                    3,
                 )
+
+            if "hpe" in display_items:
+                # show yaw, pitch and roll angles on the frame
+                text = f"yaw:{head_pose_angles[0]:.1f}, pitch:{head_pose_angles[1]:.1f}, roll:{head_pose_angles[2]:.1f}"
+                cv2.putText(
+                    display_frame,
+                    text,
+                    (20, 35),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1.5,
+                    color=(255, 255, 255),
+                    thickness=3,
+                )
+
             if "fld" in display_items:
                 # showing bbox on left eye
+                display_face_frame = face_image.copy()
                 cv2.rectangle(
-                    display_frame,
+                    display_face_frame,
                     (eye_coordinates[0][0], eye_coordinates[0][1]),
                     (eye_coordinates[0][2], eye_coordinates[0][3]),
                     (220, 20, 60),
@@ -233,47 +300,76 @@ def infer_on_stream(args):
 
                 # showing bbox on right eye
                 cv2.rectangle(
-                    display_frame,
+                    display_face_frame,
                     (eye_coordinates[1][0], eye_coordinates[1][1]),
                     (eye_coordinates[1][2], eye_coordinates[1][3]),
                     (220, 20, 60),
                     2,
                 )
 
-            if "hpe" in display_items:
-                # show yaw, pitch and roll angles on the frame
-                text = f"""yaw:{head_pose_angles[0]:.1f}, 
-                pitch:{head_pose_angles[1]:.1f}, 
-                roll:{head_pose_angles[2]:.1f}"""
-                cv2.putText(
-                    display_frame,
-                    text,
-                    (5, 5),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.3,
-                    color=(255, 255, 255),
-                    thickness=1,
+        if "fd" in display_items:
+            # if face detection is present, show both original and face image frames side by side
+            show_frame = np.hstack(
+                (
+                    cv2.resize(display_frame, (500, 500)),
+                    cv2.resize(display_face_frame, (500, 500)),
                 )
+            )
+        elif "fd" not in display_items:
+            # if fd flag is not present just show the zoomed in version of face
+            show_frame = cv2.resize(display_face_frame, (500, 500))
+        else:
+            # just show the original frame without bboxes
+            show_frame = cv2.resize(frame, (500, 500))
 
-            # if 'ge' in display_items:
-            #     # show the gaze vector
-            #     left
-            #     cv2.line
+        # show the ouput video frame
+        cv2.imshow("video", show_frame)
 
-        if frame_number % 5 == 0:
-            cv2.imshow("video", cv2.resize(display_frame, (500, 500)))
+        # if frame_number % 5 == 0:
+        #     cv2.imshow("video", cv2.resize(display_frame, (500, 500)))
 
-        if frame_number % 5 == 0:
-            mc.move(mouse_coordinates[0], mouse_coordinates[1])
+        # move the mouse pointer in the gaze direction of person
+        mc.move(mouse_coordinates[0], mouse_coordinates[1])
 
+        # break the stream if "Esc" key is pressed
         if key_pressed == 27:
-            print("Exit key is pressed...exiting!")
+            logger.error("Exit key is pressed...exiting!")
             break
+    total_inference_time = round(time.time() - start_inference_time, 2)
+    frames_per_second = int(frame_number) * 10 / total_inference_time
+    logger.error("Done performing inference!")
+    logger.error(f"Total batches: {frame_number}")
+    logger.error(f"Total inference time: {total_inference_time} seconds.")
+    logger.error(f"fps: {frames_per_second:.2f} frames/second")
 
-    # closing the video stream
+    # writing all the logs in a file, will be needed for benchmarking
+    with open(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "outputs_fp32.txt"
+        ),
+        "w",
+    ) as f:
+        f.write(
+            f"Face detection model loaded in {(fd_model_load_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Facial landmarks detection model loaded in {(fld_model_load_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Head pose estimation model loaded in {(hpe_model_load_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Gaze estimation model loaded in {(ge_model_load_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Total load time of models is {(all_models_load_time*1000):.3f} ms.\n"
+        )
+        f.write(f"Inference finished in {total_inference_time} seconds.\n")
+        f.write(f"fps: {(frames_per_second):.2f} frames/second. \n")
+
+    # closing the video stream and destroy all opencv windows
     inputfeeder.close()
-
-    print(f"Total frames: {frame_number}")
+    cv2.destroyAllWindows()
 
 
 def main():
