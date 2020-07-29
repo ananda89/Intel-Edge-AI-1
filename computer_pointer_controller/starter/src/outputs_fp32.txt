@@ -1,0 +1,7 @@
+Face detection model loaded in 241.191 ms.
+Facial landmarks detection model loaded in 119.628 ms.
+Head pose estimation model loaded in 106.383 ms.
+Gaze estimation model loaded in 130.018 ms.
+Total load time of models is 597.695 ms.
+Inference finished in 93.0 seconds.
+fps: 6.34 frames/second. 
