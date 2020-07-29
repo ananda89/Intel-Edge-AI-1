@@ -70,22 +70,28 @@ class FacialLandmarksModel:
         right_eye_y_coord = eyes_coordinates[3]
 
         # finding the image of the eyes; trying with 5, might have to change later
-        left_eye_x_min = left_eye_x_coord - 10
-        left_eye_x_max = left_eye_x_coord + 10
-        left_eye_y_min = left_eye_y_coord - 10
-        left_eye_y_max = left_eye_y_coord + 10
+        left_eye_x_min = left_eye_x_coord - 15
+        left_eye_x_max = left_eye_x_coord + 15
+        left_eye_y_min = left_eye_y_coord - 15
+        left_eye_y_max = left_eye_y_coord + 15
 
-        right_eye_x_min = right_eye_x_coord - 10
-        right_eye_x_max = right_eye_x_coord + 10
-        right_eye_y_min = right_eye_y_coord - 10
-        right_eye_y_max = right_eye_y_coord + 10
+        right_eye_x_min = right_eye_x_coord - 15
+        right_eye_x_max = right_eye_x_coord + 15
+        right_eye_y_min = right_eye_y_coord - 15
+        right_eye_y_max = right_eye_y_coord + 15
 
         # cropping the image of left and right eye from the actual face image
+        # left_eye_image = image[
+        #     left_eye_x_min:left_eye_x_max, left_eye_y_min:left_eye_y_max
+        # ]
+        # right_eye_image = image[
+        #     right_eye_x_min:right_eye_x_max, right_eye_y_min:right_eye_y_max
+        # ]
         left_eye_image = image[
-            left_eye_x_min:left_eye_x_max, left_eye_y_min:left_eye_y_max
+            left_eye_y_min:left_eye_y_max, left_eye_x_min:left_eye_x_max
         ]
         right_eye_image = image[
-            right_eye_x_min:right_eye_x_max, right_eye_y_min:right_eye_y_max
+            right_eye_y_min:right_eye_y_max, right_eye_x_min:right_eye_x_max
         ]
 
         # storing the eye coordinates for both eyes
