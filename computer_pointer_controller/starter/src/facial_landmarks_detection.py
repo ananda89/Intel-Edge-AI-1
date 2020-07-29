@@ -4,8 +4,6 @@ This has been provided just to give you an idea of how to structure your model c
 """
 import numpy as np
 import time
-import os
-import logging as log
 from openvino.inference_engine import IECore, IENetwork
 import cv2
 
@@ -24,7 +22,6 @@ class FacialLandmarksModel:
         self.extensions = extensions
         self.model_weights = model_name + ".bin"
         self.model_structure = model_name + ".xml"
-        self.logger = log.getLogger()
 
         try:
             self.core = IECore()
@@ -60,13 +57,11 @@ class FacialLandmarksModel:
         TODO: You will need to complete this method.
         This method is meant for running predictions on the input image.
         """
+        # recording the time taken to preprocess the inputs
         preprocessing_start_time = time.time()
         preprocessed_image = self.preprocess_input(image)
         input_dict = {self.input_name: preprocessed_image}
         preprocessing_total_time = time.time() - preprocessing_start_time
-        self.logger.error(
-            f"Time taken to preprocess the image for facial landmarks model is {(preprocessing_total_time * 1000):.3f} ms."
-        )
         output = self.net.infer(input_dict)
         eyes_coordinates = self.preprocess_output(output, image)
 
@@ -118,7 +113,12 @@ class FacialLandmarksModel:
         # returning eye coordinates to show the bboxes on eyes
         eye_coords = [left_eye_coords, right_eye_coords]
 
-        return left_eye_image, right_eye_image, eye_coords
+        return (
+            left_eye_image,
+            right_eye_image,
+            eye_coords,
+            preprocessing_total_time,
+        )
 
     def check_model(self):
         # checking for unsupported layers

@@ -45,9 +45,15 @@ The entire directory structure for the project is like this:
 `cd /opt/intel/openvino/deployment_tools/tools/model_downloader`
 - __For Face Detection model, run the following python script with the given flags:__
 ```
+python downloader.py --name face-detection-adas-binary-0001 -o <path_to_the_project_directory>
+
+or 
+
 python downloader.py --name face-detection-adas-0001 -o <path_to_the_project_directory>
 ```
 flag `-o` refers to the path where the model should be downloaded.
+
+> __`face-detection-adas-binary-0001` model is available in only one precision (FP32), so I used `face-detection-adas-0001` model which offers (FP32, FP16, INT8) precision values. Different precision values are needed for benchmarking the models. I double checked and both the models performed exactly the same.__
 
 - __Facial landmarks detection model__
 ```
@@ -84,7 +90,7 @@ __Description of various command line arguments and shell variables used:__
     * `hpe`: diplays the three head pose angles on the frame
     
     (_Combination of these arguments can also be used_)
-- `--device` flag parses the device name on which inference is being run. Default device is "CPU", other devices like "GPU", "FPGA", "MYRIAD" can also be passed.
+- `--device`: flag parses the device name on which inference is being run. Default device is "CPU", other devices like "GPU", "FPGA", "MYRIAD" can also be passed.
 
 (_Note: OpenVINO version 2020.x.xxx does not require any cpu extension files_)
 

@@ -118,6 +118,12 @@ def infer_on_stream(args):
     # instantiate logger object
     logger = log.getLogger()
 
+    # variables to store the input preprocessing times for various models
+    fd_input_preprocessing_time = 0
+    fld_input_preprocessing_time = 0
+    hpe_input_preprocessing_time = 0
+    ge_input_preprocessing_time = 0
+
     # open the input file
     if input_file == "CAM":
         inputfeeder = InputFeeder("cam")
@@ -232,35 +238,32 @@ def infer_on_stream(args):
         key_pressed = cv2.waitKey(60)
 
         # detect the face in the frame
-        face_coordinates, face_image = fd_model.predict(frame.copy())
+        face_coordinates, face_image, fd_preprocessing_time = fd_model.predict(
+            frame.copy()
+        )
+        fd_input_preprocessing_time += fd_preprocessing_time
         if face_coordinates == 0:
             logger.error("No face is detected")
             continue
 
-        # print(face_image.shape)
-        # print("Coordinates of the person's face in the frame")
-        # print(face_coordinates)
-
         # detect the head pose in the face image
-        head_pose_angles = hpe_model.predict(face_image)
-
-        # print("Person's head pose angles in the frame")
-        # print(head_pose_angles)
+        head_pose_angles, hpe_preprocessing_time = hpe_model.predict(face_image)
+        hpe_input_preprocessing_time += hpe_preprocessing_time
 
         # get the left and right eye images
-        left_eye_image, right_eye_image, eye_coordinates = fld_model.predict(
-            face_image
-        )
-        # print("Left and right eye images")
-        # print(left_eye_image.shape)
-        # print(right_eye_image.shape)
+        (
+            left_eye_image,
+            right_eye_image,
+            eye_coordinates,
+            fld_preprocessing_time,
+        ) = fld_model.predict(face_image)
+        fld_input_preprocessing_time += fld_preprocessing_time
 
         # get the coordinates for mouse controller
-        *mouse_coordinates, gaze_vector = ge_model.predict(
+        (*mouse_coordinates, ge_preprocessing_time) = ge_model.predict(
             left_eye_image, right_eye_image, head_pose_angles
         )
-        # print("Coordinates of the mouse pointer")
-        # print(mouse_coordinates)
+        ge_input_preprocessing_time += ge_preprocessing_time
 
         # check if display stats are requested, if so, show them
         if len(display_items) != 0:
@@ -329,18 +332,41 @@ def infer_on_stream(args):
         #     cv2.imshow("video", cv2.resize(display_frame, (500, 500)))
 
         # move the mouse pointer in the gaze direction of person
-        mc.move(mouse_coordinates[0], mouse_coordinates[1])
+        mc.move(mouse_coordinates[0][0], mouse_coordinates[0][1])
 
         # break the stream if "Esc" key is pressed
         if key_pressed == 27:
             logger.error("Exit key is pressed...exiting!")
             break
+    # calculating the total time taken to run the inference
     total_inference_time = round(time.time() - start_inference_time, 2)
+
+    # calculating the frames per second;
+    # multiplying by 10 to get the total frames, since stream is parsed in
+    # the batches of 10
     frames_per_second = int(frame_number) * 10 / total_inference_time
+    # calculate the average input preprocessing time of each model for whole stream
+    fd_input_preprocessing_time /= frame_number
+    fld_input_preprocessing_time /= frame_number
+    hpe_input_preprocessing_time /= frame_number
+    ge_input_preprocessing_time /= frame_number
+
     logger.error("Done performing inference!")
     logger.error(f"Total batches: {frame_number}")
     logger.error(f"Total inference time: {total_inference_time} seconds.")
     logger.error(f"fps: {frames_per_second:.2f} frames/second")
+    logger.error(
+        f"Average input preprocessing time for face detection: {(fd_input_preprocessing_time*1000):.3f} ms."
+    )
+    logger.error(
+        f"Average input preprocessing time for facial landmarks detection: {(fld_input_preprocessing_time*1000):.3f} ms."
+    )
+    logger.error(
+        f"Average input preprocessing time for head pose estimation: {(hpe_input_preprocessing_time*1000):.3f} ms."
+    )
+    logger.error(
+        f"Average input preprocessing time for gaze estimation: {(ge_input_preprocessing_time*1000):.3f} ms."
+    )
 
     # writing all the logs in a file, will be needed for benchmarking
     with open(
@@ -363,6 +389,18 @@ def infer_on_stream(args):
         )
         f.write(
             f"Total load time of models is {(all_models_load_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Average input preprocessing time for face detection: {(fd_input_preprocessing_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Average input preprocessing time for facial detection: {(fld_input_preprocessing_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Average input preprocessing time for head pose estimation: {(hpe_input_preprocessing_time*1000):.3f} ms.\n"
+        )
+        f.write(
+            f"Average input preprocessing time for gaze estimation: {(ge_input_preprocessing_time*1000):.3f} ms.\n"
         )
         f.write(f"Inference finished in {total_inference_time} seconds.\n")
         f.write(f"fps: {(frames_per_second):.2f} frames/second. \n")

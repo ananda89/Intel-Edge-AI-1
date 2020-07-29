@@ -63,12 +63,13 @@ class FaceDetectionModel:
         TODO: You will need to complete this method.
         This method is meant for running predictions on the input image.
         """
+        # recording the time taken to preprocess the inputs
         preprocessing_start_time = time.time()
         preprocessed_image = self.preprocess_input(image)
         preprocessing_total_time = time.time() - preprocessing_start_time
-        self.logger.error(
-            f"Time taken to preprocess the image for face detection is {(preprocessing_total_time * 1000):.3f} ms."
-        )
+        # self.logger.error(
+        #     f"Time taken to preprocess the image for face detection is {(preprocessing_total_time * 1000):.3f} ms."
+        # )
         input_dict = {self.input_name: preprocessed_image}
         output = self.net.infer(input_dict)
         coordinates = self.preprocess_output(output, image)
@@ -82,7 +83,7 @@ class FaceDetectionModel:
             face_coordinates[1] : face_coordinates[3],
             face_coordinates[0] : face_coordinates[2],
         ]
-        return face_coordinates, face_image
+        return face_coordinates, face_image, preprocessing_total_time
 
     def check_model(self):
         # checking for unsupported layers
