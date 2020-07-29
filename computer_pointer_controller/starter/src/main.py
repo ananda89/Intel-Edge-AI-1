@@ -104,6 +104,16 @@ def build_argparser():
         "fld: bboxs on both images,"
         "hpe: head pose (displays three angles),",
     )
+    parser.add_argument(
+        "-of",
+        "--output_fname",
+        required=True,
+        type=str,
+        default="outputs_fp32",
+        help="name of the output files used for benchmarking,"
+        "these are based on different precision values,"
+        "it can take values: {outputs_fp32, outputs_fp16, outputs_int8}",
+    )
 
     return parser
 
@@ -371,7 +381,8 @@ def infer_on_stream(args):
     # writing all the logs in a file, will be needed for benchmarking
     with open(
         os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "outputs_fp32.txt"
+            os.path.dirname(os.path.abspath(__file__)),
+            (args.output_fname + ".txt"),
         ),
         "w",
     ) as f:
