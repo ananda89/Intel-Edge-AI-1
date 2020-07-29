@@ -127,4 +127,4 @@ class GazeEstimationModel:
         x /= cv2.norm(output)
         y /= cv2.norm(output)
 
-        return x, y
+        return x, y, output  # output is gaze vector

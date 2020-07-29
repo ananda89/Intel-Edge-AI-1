@@ -90,12 +90,27 @@ def build_argparser():
         help="Probability threshold for detections filtering"
         "(0.6 by default)",
     )
+    parser.add_argument(
+        "-v",
+        "--visualize",
+        required=False,
+        nargs="+",
+        default=[],
+        help="Argument to specify if any type of visulaization of bounding box,"
+        "display of other stats are required. Multiple arguments (correspnding"
+        "to diiferent model) can be chained. Possible arguments:"
+        "fd: face detection bbox,"
+        "fld: bboxs on both images,"
+        "hpe: head pose (displays three angles),"
+        "ge: shows the gaze vectors",
+    )
 
     return parser
 
 
 def infer_on_stream(args):
     input_file = args.input_path
+    display_items = args.visualize
 
     if input_file == "CAM":
         inputfeeder = InputFeeder("cam")
@@ -156,6 +171,7 @@ def infer_on_stream(args):
         model_obj.load_model()
         model_obj.check_model()
 
+    # keep track of the frames
     frame_number = 0
     for flag, frame in inputfeeder.next_batch():
         if not flag:
@@ -164,8 +180,6 @@ def infer_on_stream(args):
         frame_number += 1
         key_pressed = cv2.waitKey(60)
 
-        if frame_number % 5 == 0:
-            cv2.imshow("video", cv2.resize(frame, (500, 500)))
         # detect the face in the frame
         face_coordinates, face_image = fd_model.predict(frame.copy())
         if face_coordinates == 0:
@@ -182,17 +196,73 @@ def infer_on_stream(args):
         print(head_pose_angles)
 
         # get the left and right eye images
-        left_eye_image, right_eye_image = fld_model.predict(face_image)
+        left_eye_image, right_eye_image, eye_coordinates = fld_model.predict(
+            face_image
+        )
         print("Left and right eye images")
         print(left_eye_image.shape)
         print(right_eye_image.shape)
 
         # get the coordinates for mouse controller
-        mouse_coordinates = ge_model.predict(
+        *mouse_coordinates, gaze_vector = ge_model.predict(
             left_eye_image, right_eye_image, head_pose_angles
         )
         print("Coordinates of the mouse pointer")
         print(mouse_coordinates)
+
+        # check if display stats are requested, if so, show them
+        display_frame = frame.copy()
+        if len(display_items) != 0:
+            if "fd" in display_items:
+                cv2.rectangle(
+                    display_frame,
+                    (face_coordinates[0], face_coordinates[1]),
+                    (face_coordinates[2], face_coordinates[3]),
+                    (32, 32, 32),
+                    2,
+                )
+            if "fld" in display_items:
+                # showing bbox on left eye
+                cv2.rectangle(
+                    display_frame,
+                    (eye_coordinates[0][0], eye_coordinates[0][1]),
+                    (eye_coordinates[0][2], eye_coordinates[0][3]),
+                    (220, 20, 60),
+                    2,
+                )
+
+                # showing bbox on right eye
+                cv2.rectangle(
+                    display_frame,
+                    (eye_coordinates[1][0], eye_coordinates[1][1]),
+                    (eye_coordinates[1][2], eye_coordinates[1][3]),
+                    (220, 20, 60),
+                    2,
+                )
+
+            if "hpe" in display_items:
+                # show yaw, pitch and roll angles on the frame
+                text = f"""yaw:{head_pose_angles[0]:.1f}, 
+                pitch:{head_pose_angles[1]:.1f}, 
+                roll:{head_pose_angles[2]:.1f}"""
+                cv2.putText(
+                    display_frame,
+                    text,
+                    (5, 5),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=0.3,
+                    color=(255, 255, 255),
+                    thickness=1,
+                )
+
+            # if 'ge' in display_items:
+            #     # show the gaze vector
+            #     left
+            #     cv2.line
+
+        if frame_number % 5 == 0:
+            cv2.imshow("video", cv2.resize(display_frame, (500, 500)))
+
         if frame_number % 5 == 0:
             mc.move(mouse_coordinates[0], mouse_coordinates[1])
 

@@ -63,7 +63,7 @@ class FacialLandmarksModel:
         output = self.net.infer(input_dict)
         eyes_coordinates = self.preprocess_output(output, image)
 
-        # extract x,y coordinates of both eyes
+        # extract x,y coordinates of both eyes' centers
         left_eye_x_coord = eyes_coordinates[0]
         left_eye_y_coord = eyes_coordinates[1]
         right_eye_x_coord = eyes_coordinates[2]
@@ -80,6 +80,7 @@ class FacialLandmarksModel:
         right_eye_y_min = right_eye_y_coord - 10
         right_eye_y_max = right_eye_y_coord + 10
 
+        # cropping the image of left and right eye from the actual face image
         left_eye_image = image[
             left_eye_x_min:left_eye_x_max, left_eye_y_min:left_eye_y_max
         ]
@@ -87,7 +88,24 @@ class FacialLandmarksModel:
             right_eye_x_min:right_eye_x_max, right_eye_y_min:right_eye_y_max
         ]
 
-        return left_eye_image, right_eye_image
+        # storing the eye coordinates for both eyes
+        left_eye_coords = [
+            left_eye_x_min,
+            left_eye_y_min,
+            left_eye_x_max,
+            left_eye_y_max,
+        ]
+        right_eye_coords = [
+            right_eye_x_min,
+            right_eye_y_min,
+            right_eye_x_max,
+            right_eye_y_max,
+        ]
+
+        # returning eye coordinates to show the bboxes on eyes
+        eye_coords = [left_eye_coords, right_eye_coords]
+
+        return left_eye_image, right_eye_image, eye_coords
 
     def check_model(self):
         # checking for unsupported layers
@@ -115,7 +133,9 @@ class FacialLandmarksModel:
         Before feeding the data into the model for inference,
         you might have to preprocess it. This function is where you can do that.
         """
-        preprocessed_image = cv2.resize(image, (48, 48))
+        preprocessed_image = cv2.resize(
+            image, (self.input_shape[3], self.input_shape[2])
+        )
         preprocessed_image = preprocessed_image.transpose((2, 0, 1))
         preprocessed_image = preprocessed_image.reshape(
             1, *preprocessed_image.shape
