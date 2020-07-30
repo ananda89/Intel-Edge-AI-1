@@ -9,8 +9,18 @@ __pycache__/
 # VS Code settings
 .vscode
 
-# model files
+# model files and videos
 intel/
+smart_queuing_system/original_videos/
+smart_queuing_system/results/manufacturing/cpu
+smart_queuing_system/results/manufacturing/gpu
+smart_queuing_system/results/manufacturing/vpu
+smart_queuing_system/results/retail/cpu
+smart_queuing_system/results/retail/fpga
+smart_queuing_system/results/retail/vpu
+smart_queuing_system/results/transportation/cpu
+smart_queuing_system/results/transportation/gpu
+smart_queuing_system/results/transportation/fpga
 
 # Distribution / packaging
 .Python
