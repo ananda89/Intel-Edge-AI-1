@@ -3,14 +3,15 @@ This project is the part of Intel Edge AI for IoT developers nanodegree of Udaci
 uses a person's gaze to control the mouse pointer to move in that direction. It can be used on a live video feed from webcam or a video stream. The project itself uses 4 different models and Gaze detection is one of the models which lies on the top of the model stack.
 
 ## Project Set Up and Installation
-*TODO:* Explain the setup procedures to run your project. For instance, this can include your project directory structure, the models you need to download and where to place them etc. Also include details about how to install the dependencies your project requires.
-
 ### Set up locally
 Following is the step-by-step instructions to run the application:
 1. Download and install __Intel OpenVINO toolkit__. The detailed instructons for installation can be 
 found [here](https://docs.openvinotoolkit.org/latest/index.html)
 2. Create a virtual environment using either [anaconda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands) or [virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-environments)
-3. Source the OpenVINO environment using: `source /opt/intel/openvino_2020.2.117/bin/setupvars.sh -pyver 3.7` where the flag `pyver` is optional (needs python version 3.5+ and preferably openvino version 2020.x.xxx)
+3. Source the OpenVINO environment using: `source /opt/intel/openvino_2020.2.117/bin/setupvars.sh -pyver 3.7` where the flag `pyver` is optional 
+
+(Note: Python version 3.5+ is required and openvino version 2020.x.xxx (preferably))
+
 4. Download all the starter files. These can be downloaded from [here](https://video.udacity-data.com/topher/2020/April/5e974e37_starter/starter.zip). Once downloaded, unzip the files in the project directory
 5. Download the required models from OpenVINO model zoo. The models we will be using are:
     * [Face Detection](https://docs.openvinotoolkit.org/latest/omz_models_intel_face_detection_adas_binary_0001_description_face_detection_adas_binary_0001.html)
@@ -20,7 +21,11 @@ found [here](https://docs.openvinotoolkit.org/latest/index.html)
 
 (Downloading the models from command line for different precision values is discussed in the next section.)
 
-6. Once the models are downloaded, we need to create python scripts for each of the four models for preprocessing and making inferences. This is because each model has different set of requirements. These scripts are listed in [src](src/) directory.
+6. Download all the files to your local machine
+
+(NOTE: It's not trivial to git clone only this project since it's a subdirectory of a github repository, so you might have to download all the files)
+
+7. Once the models are downloaded, we need to create python scripts for each of the four models for preprocessing and making inferences. This is because each model has different set of requirements. These scripts are listed in [src](src/) directory.
 The entire directory structure for the project is like this:
 ![project_directory](images/directory_structure.png)
 
@@ -87,10 +92,10 @@ __Description of various command line arguments and shell variables used:__
     * `fld`: bounding boxes around both the eyes of the person
     * `hpe`: diplays the three head pose angles on the frame
     
-    (_Combination of these arguments can also be used_)
+    (Note: Combination of above arguments can also be used)
 - `--device`: flag parses the device name on which inference is being run. Default device is "CPU", other devices like "GPU", "FPGA", "MYRIAD" can also be passed.
 
-(_Note: OpenVINO version 2020.x.xxx does not require any cpu extension files_)
+(Note: OpenVINO version 2020.x.xxx does not require any cpu extension files)
 - `--output_fname`: path to the output file which stores the stats for the model for a given precision, default value: `outputs_fp32`, other values can be `outputs_fp16` and `outputs_int8`
 
 
@@ -116,7 +121,7 @@ Due to the lack of different hardwares, most of the benchmarks are performed on 
 ## Results
 Ofcourse, using different hardwares would have provided us more insights like the best hardware for this application. But still a few important things can be inferred from above plots:
 - `INT8` has the worst model load times across all the models used, this might be because CPUs are not optimized to use with this precision
-- `face_detection` model is the biggest bottleneck when it comes to load the model and preprocess the input for the inference. It will effect the overall model performance but for inference only, it will not change much. So, optimization techniques like reducing model size might help. Although from the plot for model load times above, we see that reducing precision from FP32 to FP16 didn't change model load time at all. This means quantization won't be of much use here but we can try techniques like model compression, and weight sharing
+- `face_detection` model is the biggest bottleneck when it comes to loading the model and preprocessing the input for the inference. It will effect the overall model performance but for standalone inference, it will not change much. So, optimization techniques like reducing model size might help. Although from the plot for model load times above, we see that reducing precision from FP32 to FP16 didn't change model load time at all. This means quantization won't be of much use here but we can try techniques like model compression, and weight sharing
 - Inference times and frames per second stayed more or less the same across all the precisions. These metrics are the areas which can be further explored using different hardwares like we saw in project-2 of this nanodegree
 
 ## Stand Out Suggestions
